@@ -98,7 +98,7 @@ contract Game {
     }
 
     function buyPotion(uint _id, uint _amount) public mustBeAwake {
-        require(warriors[msg.sender].money >= idToItems[_id].price * _amount);
+        require(gold.balanceOf(msg.sender) >= idToItems[_id].price * _amount);
         gold.burnFrom(msg.sender, idToItems[_id].price * _amount);
         warriors[msg.sender].money -= idToItems[_id].price * _amount;
         consumable.mint(msg.sender, _id, _amount, "");
