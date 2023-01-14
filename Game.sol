@@ -38,9 +38,10 @@ contract Game {
         uint power;
     }
 
-    constructor(address _consumableAddress, address _swordAddress) {
+    constructor(address _consumableAddress, address _swordAddress, address _goldAddress) {
         consumable = Consumable(_consumableAddress);
         swords = Swords(_swordAddress);
+        gold = Gold(_goldAddress);
 
         addItem("kucukcan", 0, 50, 50);
         addItem("ortacan", 1, 100, 150);
@@ -72,7 +73,7 @@ contract Game {
             uint8 possibility = rand(10);
             warriors[msg.sender].health -= monsters[_index].attackPower;
             monsters[_index].health = monsters[_index].maxHealth;
-            warriors[msg.sender].money += monsters[_index].reward;
+            gold.mint(msg.sender, monsters[_index].reward);
             if( possibility <= 9 ) {
                 swords.safeMint(msg.sender);
             }
@@ -98,8 +99,9 @@ contract Game {
 
     function buyPotion(uint _id, uint _amount) public mustBeAwake {
         require(warriors[msg.sender].money >= idToItems[_id].price * _amount);
+        gold.burnFrom(msg.sender, idToItems[_id].price * _amount);
         warriors[msg.sender].money -= idToItems[_id].price * _amount;
-        consumable.mint(msg.sender, _id, _amount,"");
+        consumable.mint(msg.sender, _id, _amount, "");
     }
 
     function addItem(string memory _name, uint _id, uint _price, uint _power) private {
